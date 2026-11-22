@@ -659,6 +659,17 @@ window (or nothing) has keyboard focus. An X11 app asking for its window
 to be activated is handled as an activation request (see "Windows
 wanting attention").
 
+**X11 window states.** An X11 app may ask, with `_NET_WM_STATE` (set
+before mapping, or as a client message after): `MAXIMIZED_HORZ` and
+`MAXIMIZED_VERT` together, `FULLSCREEN`, `ABOVE` (Always on Top, as the
+window menu's; Helix's Always on Top is shown back in the window's
+`_NET_WM_STATE`), and `MODAL` (a modal dialog for the window it is
+transient for: focus meant for that window goes to the dialog, as for
+Wayland dialogs). A window asking for `SKIP_TASKBAR` is left out of the
+window list the shell is given (overview, dash, switcher), as GNOME
+Shell leaves such windows out. *Helix's choice:* `BELOW`, `STICKY` and
+`SHADED` are not supported (nor advertised in `_NET_SUPPORTED`).
+
 **X11 windows resizing themselves.** An X11 app may resize its window
 (a `ConfigureRequest`); Helix keeps deciding where it goes. The size is
 kept within the window's own `WM_NORMAL_HINTS` minimum and maximum.
