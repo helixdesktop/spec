@@ -653,6 +653,13 @@ client-side shadow (GTK 3 uses its square "solid" decorations; GTK 4
 keeps the rounded corners), and an X11 window's own size is its visible
 size for placement, maximizing, tiling and snapping.
 
+**Xwayland going away.** When Xwayland exits during the session (it
+crashed or was killed), its windows are gone from the window list and an
+X11 app's clipboard is cleared; a second later it is started again on
+the same display (the exported `DISPLAY` and `XAUTHORITY` stay valid),
+and X11 apps run again. *Helix's choice:* at most 3 times a minute;
+after that X11 apps do not run until the next session.
+
 **The active X11 window.** `_NET_ACTIVE_WINDOW` on the root window names
 the X11 window with the X input focus, and is None while a Wayland
 window (or nothing) has keyboard focus. An X11 app asking for its window
