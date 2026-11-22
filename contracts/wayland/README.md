@@ -653,6 +653,26 @@ client-side shadow (GTK 3 uses its square "solid" decorations; GTK 4
 keeps the rounded corners), and an X11 window's own size is its visible
 size for placement, maximizing, tiling and snapping.
 
+**The active X11 window.** `_NET_ACTIVE_WINDOW` on the root window names
+the X11 window with the X input focus, and is None while a Wayland
+window (or nothing) has keyboard focus. An X11 app asking for its window
+to be activated is handled as an activation request (see "Windows
+wanting attention").
+
+**X11 windows resizing themselves.** An X11 app may resize its window
+(a `ConfigureRequest`); Helix keeps deciding where it goes. The size is
+kept within the window's own `WM_NORMAL_HINTS` minimum and maximum.
+While the window is fullscreen, maximized or tiled, it keeps its size,
+as in mutter (games set their video mode's size after going fullscreen),
+and the size it asked for is the one it gets when restored.
+
+**The clipboard between X11 and Wayland apps.** X11 apps read the
+clipboard and the primary selection whenever they ask, whatever window
+has focus, as in GNOME (`xclip -o` run from a Wayland terminal, X11
+clipboard managers): X11 offers no isolation between its clients
+anyway. Wayland apps are offered the selection while they have keyboard
+focus, as the protocol says.
+
 ## Window menu and window keys (Helix)
 
 The window menu opens for a window when the app asks for it
@@ -971,7 +991,16 @@ A window wants attention when:
   wanting it when it clears the flag);
 - an X11 client asks to add, remove or toggle
   `_NET_WM_STATE_DEMANDS_ATTENTION` on its window (a `_NET_WM_STATE`
-  client message to the root window).
+  client message to the root window);
+- an X11 client asks for its window to be activated (a
+  `_NET_ACTIVE_WINDOW` client message) and Helix does not grant it.
+  Helix grants it when the message says it comes from a pager (source 2,
+  as `wmctrl -a` and `xdotool windowactivate` send), or when it names
+  the window that has keyboard focus as the client's currently active
+  window (an app moving between its own windows); a granted request
+  focuses and raises the window. *Helix's choice:* the request's
+  timestamp is not compared with the user's latest input (mutter's
+  check), so other requests only make the window want attention.
 
 A window with keyboard focus never wants attention, and one stops when it
 gets focus or closes. While a window wants it:
