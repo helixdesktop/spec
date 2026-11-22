@@ -670,6 +670,18 @@ window list the shell is given (overview, dash, switcher), as GNOME
 Shell leaves such windows out. *Helix's choice:* `BELOW`, `STICKY` and
 `SHADED` are not supported (nor advertised in `_NET_SUPPORTED`).
 
+**X11 window types.** By `_NET_WM_WINDOW_TYPE`, as mutter: a splash
+screen (`SPLASH`) gets no title bar and is centered on the output under
+the pointer; notifications, docks, and tooltips or menus that are not
+override-redirect (`NOTIFICATION`, `DOCK`, `TOOLTIP`, `DROPDOWN_MENU`,
+`POPUP_MENU`, `COMBO`, `DND`) get no title bar and go where the app puts
+them (kept on that output), also when the app moves them. Neither takes
+keyboard focus when it opens, and neither is in the window list the
+shell is given. Every other X11 window (normal, dialog, utility,
+toolbar, menu) is framed and placed like a Wayland window.
+*Helix's choice:* the position a normal X11 window asks for
+(`USPosition`, `PPosition`) is not used.
+
 **X11 windows resizing themselves.** An X11 app may resize its window
 (a `ConfigureRequest`); Helix keeps deciding where it goes. The size is
 kept within the window's own `WM_NORMAL_HINTS` minimum and maximum.
