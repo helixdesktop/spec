@@ -703,6 +703,16 @@ clipboard managers): X11 offers no isolation between its clients
 anyway. Wayland apps are offered the selection while they have keyboard
 focus, as the protocol says.
 
+**Drag and drop between X11 and Wayland apps.** Drags go both ways, as
+in GNOME: an X11 app (XDND) dragging onto a Wayland window is offered to
+it as a `wl_data_device` drag, and a Wayland app dragging onto an X11
+window drives XDND to that window (`XdndEnter`, `XdndPosition`,
+`XdndDrop`; the data through `XdndSelection`). While an X11 drag is
+over a Wayland window, the window manager's XDND-aware window covers
+the screen for the X11 app to talk to; over an X11 window it steps
+aside, and the two X11 apps drag between themselves as on any X
+server.
+
 ## Window menu and window keys (Helix)
 
 The window menu opens for a window when the app asks for it
