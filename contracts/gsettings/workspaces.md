@@ -17,6 +17,13 @@ Workspaces form one row, numbered from 1 on the left. One is active; only
 its windows are shown (and minimized windows stay minimized on their
 workspace).
 
+A window is shown, minimized, or hidden on another workspace, never two of
+these. Minimizing a minimized window changes nothing; a window on another
+workspace that is minimized stays minimized on its workspace. A hidden
+window that asks to be maximized, full screen, tiled or restored stays
+hidden and comes back in that state. Hidden windows on a monitor that goes
+away come back on one that is left, as shown windows do.
+
 - With `dynamic-workspaces` false there are `num-workspaces` workspaces.
   When the number goes down, windows on workspaces that no longer exist
   move to the last one.
