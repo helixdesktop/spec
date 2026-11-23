@@ -704,6 +704,26 @@ on its own monitor; so it is when a monitor it names is unplugged or
 moved. This is done by Helix's own X11 window manager; Smithay's, the
 default until helixdesktop/desktop#191 switches, doesn't advertise it.
 
+**X11 workspaces.** Helix tells X11 apps about its workspaces as EWMH
+desktops (`_NET_NUMBER_OF_DESKTOPS`, `_NET_CURRENT_DESKTOP`, and each
+window's `_NET_WM_DESKTOP`, 0xFFFFFFFF for a window on every workspace),
+and keeps a window's `_NET_WM_DESKTOP` saying where it is; the property
+is removed when the window is withdrawn. As mutter, an app (or a saved
+session) may choose the workspace a window opens on, by setting
+`_NET_WM_DESKTOP` before mapping it or by a `_NET_WM_DESKTOP` client
+message before then (the message wins over the property): a workspace
+there is puts the window there, hidden until that workspace is shown and
+without taking the focus; 0xFFFFFFFF puts it on every workspace (as
+Always on Visible Workspace); any other number leaves it on the active
+workspace, and the property is written back as it is. Once shown, a
+`_NET_WM_DESKTOP` message moves the window to that workspace (or every
+one), and a pager's `_NET_CURRENT_DESKTOP` message switches workspace.
+This applies to the windows Helix frames (normal windows, dialogs);
+splash screens, notifications and docks open on the active workspace.
+This is done by Helix's own X11 window manager; Smithay's, the
+default until helixdesktop/desktop#191 switches, ignores the workspace
+a window asks to open on.
+
 **X11 window types.** By `_NET_WM_WINDOW_TYPE`, as mutter: a splash
 screen (`SPLASH`) gets no title bar and is centered on the output under
 the pointer; notifications, docks, and tooltips or menus that are not
