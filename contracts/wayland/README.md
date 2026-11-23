@@ -448,7 +448,9 @@ them, and unlocking happens after the fade-out.
 - New windows open on the monitor under the pointer (see
   "Window-management settings").
 - Maximizing fills the work area of the monitor a window mostly covers;
-  fullscreen covers that monitor, or the monitor the client asks for.
+  fullscreen covers that monitor, or the monitor the client asks for, or
+  for an X11 app the monitors it names (`_NET_WM_FULLSCREEN_MONITORS`,
+  see "X11 window states"), spanning several.
 - Every `xdg_toplevel` (version 5 and later) is told Helix's capabilities
   (`wm_capabilities`: window menu, maximize, fullscreen, minimize), and
   (version 4 and later) `configure_bounds` gives the size of the work
@@ -473,7 +475,8 @@ them, and unlocking happens after the fade-out.
   onto the primary one. Maximized and fullscreen windows follow the size
   of the monitor they are on.
 - A monitor is *in full screen* while its topmost window is fullscreen
-  (dialogs of that window above it don't change this). There the
+  (dialogs of that window above it don't change this); a window
+  fullscreen across several monitors is on each of them. There the
   top-layer shell surfaces are hidden: not drawn, not in screenshots or
   screencasts, and they take no pointer input or keyboard focus. This
   hides the panel, normal notification banners and other clients' bars
@@ -680,6 +683,23 @@ Wayland dialogs). A window asking for `SKIP_TASKBAR` is left out of the
 window list the shell is given (overview, dash, switcher), as GNOME
 Shell leaves such windows out. *Helix's choice:* `BELOW`, `STICKY` and
 `SHADED` are not supported (nor advertised in `_NET_SUPPORTED`).
+An app may name the monitors its full screen covers with
+`_NET_WM_FULLSCREEN_MONITORS` (EWMH: top, bottom, left and right
+monitor, by Xinerama index), before or while it is full screen, or
+before it is shown. As mutter, a full-screen window then covers from
+the top monitor's top edge to the bottom one's bottom edge and from the
+left one's left edge to the right one's right edge: one monitor when all
+four are the same (a game choosing its monitor), or several (a flight or
+racing simulator across two), each of them in full screen (its top-layer
+shell surfaces hidden, see "Monitors and windows"). Helix keeps the
+property on the window as EWMH asks. The indices are Xwayland's Xinerama
+(and RandR monitor) order, which is the order Helix advertised its
+`wl_output`s, not their places or which is primary; Helix looks them up
+in Xwayland's list, as the app does. A list naming a monitor that isn't
+there is dropped (the property removed), and the window is full screen
+on its own monitor; so it is when a monitor it names is unplugged or
+moved. This is done by Helix's own X11 window manager; Smithay's, the
+default until helixdesktop/desktop#191 switches, doesn't advertise it.
 
 **X11 window types.** By `_NET_WM_WINDOW_TYPE`, as mutter: a splash
 screen (`SPLASH`) gets no title bar and is centered on the output under
@@ -690,8 +710,12 @@ them (kept on that output), also when the app moves them. Neither takes
 keyboard focus when it opens, and neither is in the window list the
 shell is given. Every other X11 window (normal, dialog, utility,
 toolbar, menu) is framed and placed like a Wayland window.
-*Helix's choice:* the position a normal X11 window asks for when it is
-first shown (`USPosition`, `PPosition`) is not used. Once it is shown, a
+When a normal X11 window is first shown, as mutter, a position the user
+chose (`WM_NORMAL_HINTS` `USPosition`: `xterm -geometry +X+Y`, a saved
+session) is kept, on a monitor as a move after it is shown is (below);
+one the program chose (`PPosition`) is not, and Helix places the window
+like a Wayland one. Dialogs and other transient windows go over their
+parent either way. Once it is shown, a
 window moving itself (Wine's `SetWindowPos`, installers, launchers) goes
 where it asks, as in mutter: kept on a monitor, its title bar inside the
 work area and at least 64 pixels of it on screen. An undecorated window
