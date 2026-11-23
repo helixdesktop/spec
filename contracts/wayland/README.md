@@ -674,7 +674,7 @@ to be activated is handled as an activation request (see "Windows
 wanting attention").
 
 **X11 window states.** An X11 app may ask, with `_NET_WM_STATE` (set
-before mapping, or as a client message after): `MAXIMIZED_HORZ` and
+before mapping, or as a client message before or after): `MAXIMIZED_HORZ` and
 `MAXIMIZED_VERT` together, `FULLSCREEN`, `ABOVE` (Always on Top, as the
 window menu's; Helix's Always on Top is shown back in the window's
 `_NET_WM_STATE`), and `MODAL` (a modal dialog for the window it is
@@ -683,6 +683,9 @@ Wayland dialogs). A window asking for `SKIP_TASKBAR` is left out of the
 window list the shell is given (overview, dash, switcher), as GNOME
 Shell leaves such windows out. *Helix's choice:* `BELOW`, `STICKY` and
 `SHADED` are not supported (nor advertised in `_NET_SUPPORTED`).
+As mutter, client messages sent before the window is shown count on top
+of the property the app set itself, in the order sent (a message
+removing a state the property sets removes it).
 An app may name the monitors its full screen covers with
 `_NET_WM_FULLSCREEN_MONITORS` (EWMH: top, bottom, left and right
 monitor, by Xinerama index), before or while it is full screen, or
