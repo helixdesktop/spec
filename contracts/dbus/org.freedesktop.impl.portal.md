@@ -205,6 +205,10 @@ contents are its own; Helix's are below.
   and title (the most recently used one when several match), and asks
   when there is none.
 - When the compositor ends the recording, the Session emits `Closed`.
+- When the frontend closes the session while `Start` is still running
+  (the user still choosing, or the recording starting), nothing is left
+  recording: `Start` doesn't succeed, and what it had started in the
+  compositor is stopped. The same holds for RemoteDesktop sessions.
 
 ## RemoteDesktop
 

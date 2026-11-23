@@ -34,7 +34,8 @@ An `ibus` entry's id is an IBus engine name (e.g. `anthy`, `hangul`,
   shell (the session's input method) passes the keys to IBus, gives
   committed and pre-edit text to the app, and shows IBus's candidates in
   a popup next to the text cursor. Keys IBus does not use go to the app
-  unchanged.
+  unchanged, and so do keys IBus doesn't answer within 2 seconds (a hung
+  engine must not stop typing); other IBus calls get 5 seconds.
 - Engine properties (the input context's `RegisterProperties` and
   `UpdateProperty`; the shell asks for them with capability 16): while an
   `ibus` source is active, the input source menu lists them below the

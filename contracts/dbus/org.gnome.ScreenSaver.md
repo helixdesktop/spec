@@ -48,7 +48,12 @@ While the password is checked (PAM can be slow: network accounts,
 fingerprint fallbacks), the field keeps showing as many dots as were
 typed, dimmed to half, takes no typing, and shows a spinner at its right
 end in place of the unlock button; "Checking…" is announced on the
-accessibility bus but not drawn. When the check fails:
+accessibility bus but not drawn. A check still running after 30
+seconds (PAM can't be stopped) gives the field back: it takes typing
+again and "Checking the password is taking too long. Try again." is
+shown like a failure, without the shake. If that check's answer still
+comes, a success unlocks unless the user has tried again since; a
+failure is ignored. When the check fails:
 
 - The field shakes sideways once (three swings dying out over about
   0.36 s, at most 10 logical px) and its ring turns red (#E01B24) until

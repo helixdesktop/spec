@@ -80,3 +80,9 @@ padding.
 - `password-strength` is 0 for an empty password, else 1.
 - When a client leaves the bus while prompting, its prompt closes and the
   next client goes on.
+- A client that fails a `PromptReady`, or doesn't take it within 30
+  seconds, or doesn't call again (`PerformPrompt` or `StopPrompting`)
+  within 30 seconds after one, has its prompting ended the same way: the
+  dialog closes, it gets `PromptDone`, and the next client goes on. An
+  active client holds every other prompt back (polkit, network secrets,
+  file choosers), so one that stopped answering must not keep it.

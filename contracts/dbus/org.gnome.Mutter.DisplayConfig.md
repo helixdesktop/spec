@@ -199,7 +199,9 @@ whether to keep it (Helix: through the shell's
 - Kept: the configuration is remembered.
 - Reverted, the countdown running out, or no answer: the configuration
   from before the change comes back (with `MonitorsChanged`), and nothing
-  is remembered.
+  is remembered. If the set of monitors changed while the question was
+  open (one unplugged, another plugged in), nothing is reverted: the
+  configuration from before was for other monitors.
 - With no dialog to ask, or when the configuration is the one already
   shown, it is kept and remembered at once.
 - Another `ApplyMonitorsConfig` while the question is open closes it.

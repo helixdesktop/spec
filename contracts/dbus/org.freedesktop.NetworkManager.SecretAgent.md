@@ -86,7 +86,9 @@ Helix answers, when interaction is allowed:
   {"identity": <s>, "password": <s>}}`; Cancel answers `UserCanceled`.
   Without interaction: `NoSecrets`.
 - `CancelGetSecrets` closes the dialog that is open for that connection
-  and setting (the pending call answers `AgentCanceled`).
+  and setting (the pending call answers `AgentCanceled`). When several
+  requests for one connection and setting are open, it cancels all of
+  them; otherwise each request ends on its own and never cancels another.
 - `SaveSecrets` and `DeleteSecrets`: see "Agent-owned secrets".
 
 ### Agent-owned secrets
