@@ -686,8 +686,15 @@ them (kept on that output), also when the app moves them. Neither takes
 keyboard focus when it opens, and neither is in the window list the
 shell is given. Every other X11 window (normal, dialog, utility,
 toolbar, menu) is framed and placed like a Wayland window.
-*Helix's choice:* the position a normal X11 window asks for
-(`USPosition`, `PPosition`) is not used.
+*Helix's choice:* the position a normal X11 window asks for when it is
+first shown (`USPosition`, `PPosition`) is not used. Once it is shown, a
+window moving itself (Wine's `SetWindowPos`, installers, launchers) goes
+where it asks, as in mutter: kept on a monitor, its title bar inside the
+work area and at least 64 pixels of it on screen. An undecorated window
+(`_MOTIF_WM_HINTS` asking for no decorations) covering a monitor exactly,
+when it is shown or when it resizes itself to it, is full screen there
+(borderless full screen, as SDL, Unity and Wine games do it), and leaves
+full screen when it asks for any other size or place.
 
 **X11 stacking.** The X server stacks X11 windows as Helix shows them:
 a raised window goes above the other app windows (below override-redirect
