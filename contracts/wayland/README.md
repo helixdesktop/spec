@@ -689,6 +689,13 @@ toolbar, menu) is framed and placed like a Wayland window.
 *Helix's choice:* the position a normal X11 window asks for
 (`USPosition`, `PPosition`) is not used.
 
+**X11 stacking.** The X server stacks X11 windows as Helix shows them:
+a raised window goes above the other app windows (below override-redirect
+menus), and hidden ones (minimized, on another workspace) go to the
+bottom, so a drag between two X11 apps, or `XQueryPointer`, never finds an
+invisible window above a visible one. A window's dialogs, X11 or Wayland,
+stay above it when it is raised, as in mutter.
+
 **X11 windows resizing themselves.** An X11 app may resize its window
 (a `ConfigureRequest`); Helix keeps deciding where it goes. The size is
 kept within the window's own `WM_NORMAL_HINTS` minimum and maximum.
