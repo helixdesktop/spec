@@ -643,9 +643,13 @@ border width.
 **X11 windows with transparency.** Helix's window manager owns the
 compositing manager selection (`_NET_WM_CM_S0`), so X11 apps know their
 windows are composited, and an X11 window with an alpha channel (a
-32-bit ARGB visual) is blended over what is behind it: its frame window
-(the parent Helix reparents it into) has the window's own depth and
-visual, so the alpha survives. GTK's rounded client-side decorations
+32-bit ARGB visual) is blended over what is behind it, its alpha kept:
+Helix's own X11 window manager doesn't reparent X11 windows into frame
+windows (the title bar Helix draws for X11 apps is drawn by the
+compositor, and announced in `_NET_FRAME_EXTENTS`), so a window keeps its
+own depth and visual; Smithay's window manager, the default until
+helixdesktop/desktop#191 switches, reparents into a frame window of the
+window's own depth and visual. GTK's rounded client-side decorations
 show the desktop outside their rounding, as on Wayland.
 *GNOME does not document this; Helix's choice:* `_GTK_FRAME_EXTENTS` is
 not in `_NET_SUPPORTED`, so GTK draws X11 windows without its
