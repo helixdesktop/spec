@@ -1119,7 +1119,12 @@ A window wants attention when:
   as `wmctrl -a` and `xdotool windowactivate` send), or when it names
   the window that has keyboard focus as the client's currently active
   window (an app moving between its own windows); a granted request
-  focuses and raises the window. *Helix's choice:* the request's
+  focuses and raises the window. It is granted too when the window's
+  `_NET_STARTUP_ID`, or else its client leader's (`WM_CLIENT_LEADER`;
+  GTK 3 sets it there when a running app presents a window for a new
+  launch), is a token Helix grants, such as the shell's for an app it
+  launched or woke: the X11 counterpart of activating with that token,
+  which it uses up. *Helix's choice:* the request's
   timestamp is not compared with the user's latest input (mutter's
   check), so other requests only make the window want attention.
 
@@ -1617,6 +1622,12 @@ and springs back from pressed with a slight overshoot over 0.3 seconds,
 and the launch copy takes 0.25 seconds. With it false, hover and press
 show at once at their final look and there is no launch copy. Nothing
 moves while an item is being dragged.
+
+*Helix's choice:* launch feedback does not wait for the app: there is
+no busy pointer or "starting" mark until its window shows (mutter shows
+a busy pointer while a launch's startup sequence is open). So X11
+startup notification messages (`_NET_STARTUP_INFO`) are not read
+(helixdesktop/desktop#291).
 
 The feedback keeps up with the pointer: pointer motion is taken a
 pointer frame at a time (one drawing per frame however many motions it
