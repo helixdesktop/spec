@@ -736,8 +736,9 @@ focus or `_NET_WM_STATE_FOCUSED`), the window that has the focus keeps
 it (`_NET_ACTIVE_WINDOW` unchanged), and the shell's window list never
 shows it focused, shown or on the active workspace. A window starting
 on another workspace is the one focused when that workspace is shown
-(it is on top there); one starting minimized there stays minimized. (Smithay's window manager, which ignores
-the workspace, does this for starting minimized.)
+(it is on top there); one starting minimized there stays minimized.
+Smithay's window manager, which ignores the workspace, does this for
+windows starting minimized.
 
 **X11 window types.** By `_NET_WM_WINDOW_TYPE`, as mutter: a splash
 screen (`SPLASH`) gets no title bar and is centered on the output under
