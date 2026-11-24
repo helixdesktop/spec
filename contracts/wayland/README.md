@@ -642,6 +642,23 @@ that edge or corner, and the pointer shows the matching resize cursor.
 Corners are where two borders meet, extended along each edge by the
 border width.
 
+**Touch.** A finger on a frame does what the left button does, as mutter
+does for its own frames, and the touch goes to no app, nor focuses the
+window behind the frame: on the title bar it focuses and raises the
+window, and dragging moves it (a maximized or tiled window is restored
+once the finger has moved; edge tiling as with the pointer); two taps
+within `double-click` milliseconds and 20 logical pixels of each other do
+`action-double-click-titlebar`; on a border it resizes the window (not
+while maximized); on a button it shows the button pressed while the
+finger is on it, and acts only if the finger lifts on it (a touch
+cancelled first, by a touch gesture or the session locking, does
+nothing). A finger landing on a frame while another moves or resizes a
+window is ignored. There is no touch counterpart of the middle and right
+clicks yet (a long press for the window menu:
+helixdesktop/desktop#299). *GNOME does not document this; Helix's
+choice:* the 20 pixels (GTK's double-click distance, 5, times four for a
+finger).
+
 `ScreenshotWindow` with `include_frame` true includes the title bar.
 
 **X11 windows with transparency.** Helix's window manager owns the
