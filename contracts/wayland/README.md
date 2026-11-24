@@ -1266,6 +1266,29 @@ under either X11 window manager:
 mutter shows (a watch), because the desktop stays usable while an app
 starts.
 
+**The shell hears when its launches end.** When a launch ends, the
+client that announced it with `gtk_shell1.notify_launch` gets
+`helix_window_list_v1.launch_ended` (version 14) with the startup id and
+why: `used` (its id was used, or an app set it with
+`gtk_shell1.set_startup_id`), `window` (a new window of the app, or one
+with the id as its `_NET_STARTUP_ID`, mapped), `removed` (X11 "remove:"),
+`timed_out`, or `dropped` (more than 32 were pending; the oldest went).
+Each launch is reported once, and only to the client that announced it,
+on its window list (which only the shell has). Launches other clients
+announce and X11 launchers' "new:" ones are not reported.
+
+**Starting apps on the dock.** While a launch the shell announced is
+pending, its app is shown as starting on the dock and in the overview's
+dash ("Dock"). The shell keeps its own list of the launches it announced
+(those with a desktop file id), and drops each when `launch_ended` names
+it. If that never comes (a compositor without version 14, or one that
+restarted), the shell gives up on its own a second after the
+compositor's timeout (16 seconds). Like the busy pointer, this follows
+startup notification: GIO hands the shell's token to apps whose desktop
+file says `StartupNotify=true` (and to D-Bus activated ones), so an app
+launched without one is not shown starting, as in GNOME Shell, whose
+apps' "starting" state also comes from startup sequences.
+
 ## Unresponsive apps (Helix)
 
 When a window gets focus, Helix checks that its app still responds: a
@@ -1749,8 +1772,10 @@ show at once at their final look and there is no launch copy. Nothing
 moves while an item is being dragged.
 
 The launch copy does not wait for the app. What does is the busy
-pointer while the launched app starts ("Launch feedback"). *Helix's
-choice:* there is no "starting" mark on the item itself.
+pointer while the launched app starts ("Launch feedback"), and the
+starting mark on the dock's and the dash's item ("Dock", "Starting
+apps"), which works without a pointer (touch) and over app windows that
+set their own cursor.
 
 The feedback keeps up with the pointer: pointer motion is taken a
 pointer frame at a time (one drawing per frame however many motions it
@@ -1922,6 +1947,21 @@ in the overview (which has its dash) or the launcher.
   the Trash will be permanently deleted.", "Cancel" / "Empty Trash") and
   then empties the trash of every mount (as `gio trash --empty` does).
 - **Feedback** on the items as in "Item feedback" (App grid section).
+- **Starting apps** (helixdesktop/desktop#298). While an app the shell
+  launched is starting ("Launch feedback", "Starting apps on the dock"),
+  its item's icon is dimmed. With `enable-animations` on and without
+  `reduced-motion` `reduce`, it breathes: its opacity goes smoothly from
+  85 % down to 45 % and back every 1.6 seconds (redrawn 20 times a
+  second). Without animations or with reduced motion it stays at 50 %.
+  Nothing moves or bounces, and the layout does not change while it
+  starts. The item's accessible object is busy and its description says
+  "starting". When the launch ends the icon is drawn as before. *Helix's
+  choice:* an app that is not pinned gets an item of its own among the
+  running apps while it starts (as GNOME's dash shows starting apps),
+  where it would appear once running; if the launch ends without a
+  window, the item goes again. The overview's dash shows the same starting
+  apps (pinned or not) dimmed at 50 %, without breathing. The app grid
+  does not: it closes when it launches an app.
 - **Dragging** an app's icon along the dock moves it among the favorites
   (a running app dropped there becomes a favorite at that place);
   dropping a favorite more than 60 pixels away from the dock unpins it.
