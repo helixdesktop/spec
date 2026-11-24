@@ -724,6 +724,21 @@ This is done by Helix's own X11 window manager; Smithay's, the
 default until helixdesktop/desktop#191 switches, ignores the workspace
 a window asks to open on.
 
+**X11 apps moving and resizing their windows.** An X11 app may start a
+move or resize of its own window (`_NET_WM_MOVERESIZE`, from its own
+title bar or border, as Steam, Chromium, Firefox and GTK apps drawing
+their own decorations do). As mutter and wlroots, the move (direction 8)
+or resize (directions 0 to 7) follows the pointer when a button is held,
+else the touch point that is down when the app asks (a touch screen),
+until that button is released or that finger lifts; with neither, the
+request is ignored. A move by touch works as one by the pointer: a
+maximized or tiled window is restored once the finger has moved, and
+edge tiling previews and applies on lift. A resize starts from the size
+the window was last given (not the one it has drawn so far). Direction
+11 (cancel), or the session locking, ends it where it is. Directions 9
+and 10 (keyboard resize and move) work as the window menu's Resize and
+Move. This holds with either X11 window manager.
+
 **X11 windows that start hidden.** An X11 window asking to start
 minimized (`WM_HINTS` initial state Iconic) opens minimized, as GNOME
 does. As mutter, where a new X11 window starts (minimized, on another
