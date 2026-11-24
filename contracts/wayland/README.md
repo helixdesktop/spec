@@ -724,6 +724,21 @@ This is done by Helix's own X11 window manager; Smithay's, the
 default until helixdesktop/desktop#191 switches, ignores the workspace
 a window asks to open on.
 
+**X11 windows that start hidden.** An X11 window asking to start
+minimized (`WM_HINTS` initial state Iconic) opens minimized, as GNOME
+does. As mutter, where a new X11 window starts (minimized, on another
+workspace, or both) is decided before it is first shown, and it is put
+straight there: a window starting minimized is mapped with `WM_STATE`
+Iconic and `_NET_WM_STATE_HIDDEN`, never Normal first; one starting on
+another workspace only ever has that workspace in `_NET_WM_DESKTOP`.
+Neither is given the focus on the way (no `WM_TAKE_FOCUS`, X input
+focus or `_NET_WM_STATE_FOCUSED`), the window that has the focus keeps
+it (`_NET_ACTIVE_WINDOW` unchanged), and the shell's window list never
+shows it focused, shown or on the active workspace. A window starting
+on another workspace is the one focused when that workspace is shown
+(it is on top there); one starting minimized there stays minimized. (Smithay's window manager, which ignores
+the workspace, does this for starting minimized.)
+
 **X11 window types.** By `_NET_WM_WINDOW_TYPE`, as mutter: a splash
 screen (`SPLASH`) gets no title bar and is centered on the output under
 the pointer; notifications, docks, and tooltips or menus that are not
