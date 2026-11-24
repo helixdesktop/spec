@@ -272,7 +272,8 @@ pointer grab, the request's serial not compared; for tablet tools see
 `contracts/gsettings/input-settings.md`; an unknown shape is the
 protocol's `invalid_shape` error), or nothing. Elsewhere (desktop, panels
 that set none, Helix's title bars and window edges) it is the theme's
-default or resize cursor. Helix's shell names a cursor on every one of
+default or resize cursor (on the desktop, `progress` while an app the
+shell launched is starting: "Launch feedback"). Helix's shell names a cursor on every one of
 its surfaces as the pointer enters it, so another app's cursor never
 stays over the panel, dock or desktop: the arrow, or the screenshot
 pickers' crosshair and resize cursors
@@ -1174,6 +1175,80 @@ gets focus or closes. While a window wants it:
 How GNOME words its notification and which activation requests it turns
 into attention are not documented here; these are Helix's.
 
+## Launch feedback (Helix)
+
+While an app the shell launched is starting, the pointer shows the theme's
+`progress` cursor (an arrow with a spinner). Clicks and everything else
+still work.
+
+**Where it shows.** It shows wherever the pointer would show the plain
+arrow (`default`):
+
+- over the desktop;
+- over the shell's surfaces, except where the shell asked for another
+  cursor (a text beam, a hand).
+
+Over app windows, including the title bars and edges Helix draws for
+them, the app's own cursor shows. Mutter's busy cursor overrides only its
+own stage (the shell and the desktop) in the same way. The busy pointer
+doesn't show while the session is locked. It shows everywhere Helix's
+pointer shows: on the monitors, in the nested window (as the host's
+cursor), in screenshots that include the pointer, and in screen casts.
+
+**What starts a launch.** For each launch, the shell makes an
+`xdg_activation_v1` token, gives it the app's desktop file id
+(`set_app_id`), and announces it with `gtk_shell1.notify_launch` before
+handing it to the app ("Windows wanting attention"). Tokens that aren't
+announced are not launches: a notification's action, focus passed between
+apps. An X11 launcher's `_NET_STARTUP_INFO` "new:" message (below) also
+starts one. As in mutter, any client may announce a launch. An id already
+pending is not counted again, and at most 32 launches are followed (the
+oldest is dropped). Launches overlap: the pointer is busy while any is
+pending.
+
+**What ends a launch.** The first of these ends it:
+
+- **Its id is used** to activate a window: `xdg_activation_v1.activate`,
+  `gtk_surface1.request_focus`, or an X11 `_NET_ACTIVE_WINDOW` request
+  whose window has it as `_NET_STARTUP_ID`. That is also how a
+  single-instance app hands a launch to its running copy.
+  `gtk_shell1.set_startup_id` naming the id ends it too.
+- **A new X11 window maps with the id as its `_NET_STARTUP_ID`,** set on
+  the window itself or on its client leader.
+- **A window of the launched app maps** that wasn't there when the launch
+  started. "Of the launched app" means its Wayland app id, or its X11
+  `WM_CLASS` class or instance, is the launch's desktop file id (without
+  `.desktop`) or an X11 launcher's `WMCLASS`, ignoring case. *Helix's
+  choice:* mutter matches only X11 `WMCLASS` this way; Helix also matches
+  Wayland app ids, because many apps never use the token.
+- **An X11 `_NET_STARTUP_INFO` "remove:"** carries its `ID`.
+- **15 seconds pass** (mutter's timeout).
+
+A launched process that exits early is not noticed; the timeout ends its
+launch.
+
+**X11 startup notification.** Helix reads the startup-notification
+messages that X11 apps and launchers send on Helix's own X connection,
+under either X11 window manager:
+
+- **How they arrive.** Messages are `_NET_STARTUP_INFO_BEGIN` and then
+  `_NET_STARTUP_INFO` client messages of format 8, sent to the root window
+  with `PropertyChangeMask`, as libstartup-notification, GDK and Qt send
+  them. Each carries 20 bytes.
+- **How they're assembled.** The 20-byte pieces are joined per sending
+  window until a NUL byte. A message is at most 4 KiB.
+- **How they're read.** Each message is `new:`, `change:` or `remove:`
+  followed by `KEY=VALUE` pairs separated by spaces. Double quotes group a
+  value that holds spaces, and they may appear anywhere in it. A backslash
+  escapes the next character, inside quotes or not.
+- **What Helix does with them.** "new:" starts a launch (its `WMCLASS`
+  counts for matching windows) and "remove:" ends one; "change:" is
+  ignored.
+
+*Helix's choice:* the pointer uses `progress`, not the "wait" cursor
+mutter shows (a watch), because the desktop stays usable while an app
+starts.
+
 ## Unresponsive apps (Helix)
 
 When a window gets focus, Helix checks that its app still responds: a
@@ -1656,11 +1731,9 @@ and the launch copy takes 0.25 seconds. With it false, hover and press
 show at once at their final look and there is no launch copy. Nothing
 moves while an item is being dragged.
 
-*Helix's choice:* launch feedback does not wait for the app: there is
-no busy pointer or "starting" mark until its window shows (mutter shows
-a busy pointer while a launch's startup sequence is open). So X11
-startup notification messages (`_NET_STARTUP_INFO`) are not read
-(helixdesktop/desktop#291).
+The launch copy does not wait for the app. What does is the busy
+pointer while the launched app starts ("Launch feedback"). *Helix's
+choice:* there is no "starting" mark on the item itself.
 
 The feedback keeps up with the pointer: pointer motion is taken a
 pointer frame at a time (one drawing per frame however many motions it
