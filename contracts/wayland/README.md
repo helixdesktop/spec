@@ -724,6 +724,24 @@ This is done by Helix's own X11 window manager; Smithay's, the
 default until helixdesktop/desktop#191 switches, ignores the workspace
 a window asks to open on.
 
+**Wayland apps moving and resizing their windows.** A Wayland app may
+start a move or resize of its own window (`xdg_toplevel.move` /
+`resize`, from its own header bar or from the resize border GTK and
+libadwaita keep in the shadow outside the window geometry: input there
+reaches the app, as the input region says). As mutter and wlroots, the
+serial may be that of a pointer button press or of a touch down
+(`wl_touch.down`, as GTK and Qt send on a touch screen) that is still
+held, on a surface of that app; anything else (another app's serial, a
+released button's or a lifted touch's) is ignored. The window then
+follows that pointer or touch point until the button is released or the
+finger lifts (the app is sent that release or lift; other touch points
+go nowhere meanwhile). A move by touch works as one by the pointer: a
+maximized or tiled window is restored once the finger has moved, and
+edge tiling previews and applies on lift. A resize asks the app for each
+new size (state `resizing`, which is unset when it ends), and dragging a
+top or left edge keeps the opposite edges in place once the app draws at
+that size. A touch cancel or the session locking ends it where it is.
+
 **X11 apps moving and resizing their windows.** An X11 app may start a
 move or resize of its own window (`_NET_WM_MOVERESIZE`, from its own
 title bar or border, as Steam, Chromium, Firefox and GTK apps drawing
