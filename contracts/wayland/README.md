@@ -857,9 +857,12 @@ then plain text), at most 4 MiB as in mutter, and the best image type
 16 MiB (mutter keeps up to 200 MiB, and one type only). Each read runs
 off the compositor's thread, gives up when the app writes nothing for
 5 seconds or after 30 in all, and a newer selection cancels it. When the
-owner goes away (its Wayland client disconnects; the X11 owner's window
-is destroyed or its connection closes) and the copy was complete, the
-compositor owns the clipboard with it, for Wayland and X11 apps alike:
+owner goes away (its Wayland client disconnects, or destroys the copy's
+source while it runs on, helixdesktop/desktop#305; the X11 owner's window
+is destroyed or its connection closes, or Xwayland itself goes away,
+helixdesktop/desktop#306) and the copy was complete, the compositor owns
+the clipboard with it, for Wayland and X11 apps alike (X11 apps again
+once Xwayland is back):
 UTF-8 text is offered under every text type, plain text as
 `text/plain`, an image under its own type. A newer copy replaces it.
 Not kept, unlike mutter, which restores even then: a clipboard an app
@@ -869,8 +872,10 @@ over its limit (not offered afterwards, so a paste of it can't come cut
 off), other types, the primary selection (as mutter), and a copy marked
 secret (`x-kde-passwordManagerHint`, whatever its value: KeePassXC and
 KDE's password managers mark their copies so; mutter keeps those), which
-goes with its app. Nothing of what is kept is logged, only how many
-types and bytes.
+goes with its app. A copy that isn't kept, and a Wayland app's primary
+selection, are no longer offered to X11 apps (nor to the shell and
+remote desktop sessions) once their source is gone. Nothing of what is
+kept is logged, only how many types and bytes.
 
 X11 apps find a clipboard manager, which mutter isn't: the compositor's
 own X connection owns `CLIPBOARD_MANAGER` (announced with `MANAGER`,
