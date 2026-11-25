@@ -286,6 +286,14 @@ code. The choices that users or developers are most likely to notice:
   system defaults. Its accessibility menu (high contrast, large text,
   the screen reader, its own on-screen keyboard) is remembered by the
   greeter itself.
+- **Archives**: Helix Files creates and extracts zip and compressed tar
+  archives itself, without file-roller or gnome-autoar. The last format
+  chosen is shared through `org.gnome.nautilus.compression
+  default-compression-format` when it is `zip` or `tar.xz`; the formats
+  that key can't express are kept in `$XDG_CONFIG_HOME/helix-files/archive-format`.
+  Archives are untrusted: entries that would land outside the
+  destination, device nodes and encrypted zips are refused, and setuid
+  bits are dropped (helixdesktop/apps#214).
 
 Each of these is written down in its contract, marked *GNOME does not
 document this; Helix's choice:* where GNOME is silent, so other
