@@ -847,6 +847,46 @@ clipboard managers): X11 offers no isolation between its clients
 anyway. Wayland apps are offered the selection while they have keyboard
 focus, as the protocol says.
 
+**The clipboard after its app exits.** As in GNOME (mutter's
+`MetaClipboardManager`), the clipboard stays when the app that copied
+goes away (helixdesktop/desktop#284). Whenever an app, Wayland or X11,
+sets the clipboard, the compositor reads and keeps a copy: the best text
+type it offers (`text/plain;charset=utf-8` first, then `UTF8_STRING`,
+then plain text), at most 4 MiB as in mutter, and the best image type
+(`image/png` first, then SVG, WebP, JPEG, GIF, BMP, TIFF), at most
+16 MiB (mutter keeps up to 200 MiB, and one type only). Each read runs
+off the compositor's thread, gives up when the app writes nothing for
+5 seconds or after 30 in all, and a newer selection cancels it. When the
+owner goes away (its Wayland client disconnects; the X11 owner's window
+is destroyed or its connection closes) and the copy was complete, the
+compositor owns the clipboard with it, for Wayland and X11 apps alike:
+UTF-8 text is offered under every text type, plain text as
+`text/plain`, an image under its own type. A newer copy replaces it.
+Not kept, unlike mutter, which restores even then: a clipboard an app
+cleared on purpose (Wayland `set_selection(NULL)`, X11
+`SetSelectionOwner(None)`), which stays empty. Not kept either: a type
+over its limit (not offered afterwards, so a paste of it can't come cut
+off), other types, the primary selection (as mutter), and a copy marked
+secret (`x-kde-passwordManagerHint`, whatever its value: KeePassXC and
+KDE's password managers mark their copies so; mutter keeps those), which
+goes with its app. Nothing of what is kept is logged, only how many
+types and bytes.
+
+X11 apps find a clipboard manager, which mutter isn't: the compositor's
+own X connection owns `CLIPBOARD_MANAGER` (announced with `MANAGER`,
+ICCCM 2.8) whichever window manager runs, and answers `SAVE_TARGETS`
+(freedesktop.org's ClipboardManager specification), which GTK 3 and Qt
+send as they exit and wait up to 10 seconds for: saved once the copy is
+kept (at most 8 seconds later), refused when nothing is (secret, too
+large, no text or image). The targets the app lists are not read: the
+compositor keeps what it keeps of every copy. `TARGETS` on
+`CLIPBOARD_MANAGER` lists `TARGETS` and `SAVE_TARGETS`.
+
+An X11 app that takes the clipboard and never says what it offers (its
+`TARGETS` unanswered, a hung app) leaves nothing to paste: after
+3 seconds the copy before it is no longer offered to Wayland apps
+(helixdesktop/desktop#270).
+
 **Drag and drop between X11 and Wayland apps.** Drags go both ways, as
 in GNOME: an X11 app (XDND) dragging onto a Wayland window is offered to
 it as a `wl_data_device` drag, and a Wayland app dragging onto an X11

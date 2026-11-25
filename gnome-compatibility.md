@@ -209,6 +209,13 @@ code. The choices that users or developers are most likely to notice:
 
 ### Safety and robustness
 
+- **The clipboard after its app exits.** Kept, as in GNOME, but Helix
+  keeps the copy's text and its image (mutter keeps one type), images up
+  to 16 MiB (mutter: 200 MiB), and not a copy marked secret
+  (`x-kde-passwordManagerHint`) nor a clipboard the app cleared on
+  purpose, both of which mutter restores; X11 apps also find a clipboard
+  manager answering `SAVE_TARGETS`, which mutter doesn't offer
+  (`contracts/wayland/README.md`, "The clipboard after its app exits").
 - **Dialogs default to the safe button.** Enter means Wait for an
   unresponsive app, Deny for remote control and shortcut requests, Cancel
   for extension approval; keys pressed in the first 300 ms after a dialog
