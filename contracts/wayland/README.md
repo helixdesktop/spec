@@ -685,6 +685,18 @@ the same display (the exported `DISPLAY` and `XAUTHORITY` stay valid),
 and X11 apps run again. *Helix's choice:* at most 3 times a minute;
 after that X11 apps do not run until the next session.
 
+**The X11 window manager failing to start.** If the X11 window manager
+the session asks for (`HELIX_XWM`: Smithay's or Helix's own) fails to
+start, the other one takes over, and X11 apps run. Xwayland is started
+again on the same display, which no other X server can take meanwhile,
+so the exported `DISPLAY` and `XAUTHORITY` are valid from the start.
+The other window manager is used for the rest of the session, also
+when Xwayland is started again later. The compositor's log names the
+one that failed, the reason, and the one that took over. *Helix's
+choice:* the switch is tried once: if the other window manager fails
+too, X11 apps do not run until the next session. Nothing beyond the log
+tells the user (helixdesktop/desktop#270).
+
 **The active X11 window.** `_NET_ACTIVE_WINDOW` on the root window names
 the X11 window with the X input focus, and is None while a Wayland
 window (or nothing) has keyboard focus. An X11 app asking for its window
